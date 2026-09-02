@@ -1,0 +1,20 @@
+{
+  "name": "paragon-supply-hub-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Paragon Supply Collaboration Hub - Next.js API backend (mock data, PostgreSQL-ready)",
+  "scripts": {
+    "dev": "next dev -p 4000",
+    "build": "next build",
+    "start": "next start -p 4000"
+  },
+  "dependencies": {
+    "next": "14.2.35",
+    "pg": "^8.12.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}
