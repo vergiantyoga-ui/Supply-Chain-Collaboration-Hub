@@ -1,5 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
 
+import { getSessionEmail } from "./session.js";
+
 /**
  * Thin fetch wrapper shared by every module in src/api/*.
  * Every backend response follows { success, data } or { success:false, message, errors }.
@@ -16,12 +18,15 @@ export class ApiError extends Error {
 }
 
 export async function apiRequest(path, { method = "GET", body, headers } = {}) {
+  const sessionEmail = getSessionEmail();
+
   let response;
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       method,
       headers: {
         "Content-Type": "application/json",
+        ...(sessionEmail ? { "X-User-Email": sessionEmail } : {}),
         ...headers,
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,

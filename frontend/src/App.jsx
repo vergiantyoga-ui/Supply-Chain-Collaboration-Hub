@@ -8,13 +8,17 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import RegisterSuccessPage from "./pages/RegisterSuccessPage.jsx";
 import InternalReviewPage from "./pages/InternalReviewPage.jsx";
-import SupplierHomePage from "./pages/SupplierHomePage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
+
+import SupplierLayout from "./components/supplier/SupplierLayout.jsx";
+import ProfilePage from "./pages/supplier/ProfilePage.jsx";
+import RfxPage from "./pages/supplier/RfxPage.jsx";
+import QuotationsPage from "./pages/supplier/QuotationsPage.jsx";
 
 function HomeRedirect() {
   const { isAuthenticated, isInternalStaff } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  return <Navigate to={isInternalStaff ? "/internal" : "/supplier/home"} replace />;
+  return <Navigate to={isInternalStaff ? "/internal" : "/supplier/profile"} replace />;
 }
 
 export default function App() {
@@ -27,6 +31,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/register/success" element={<RegisterSuccessPage />} />
+
         <Route
           path="/internal"
           element={
@@ -35,14 +40,21 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
-          path="/supplier/home"
+          path="/supplier"
           element={
             <ProtectedRoute role="supplier">
-              <SupplierHomePage />
+              <SupplierLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<Navigate to="profile" replace />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="rfx" element={<RfxPage />} />
+          <Route path="quotations" element={<QuotationsPage />} />
+        </Route>
+
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>

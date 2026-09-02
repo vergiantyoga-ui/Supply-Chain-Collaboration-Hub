@@ -7,7 +7,17 @@ const LABEL_KEY = {
   rejected: "statusRejected",
 };
 
-export default function StatusPill({ status }) {
+const VARIANT_CLASS = {
+  pending: styles.pending,
+  approved: styles.approved,
+  rejected: styles.rejected,
+  success: styles.approved,
+  neutral: styles.rejected,
+};
+
+/** `status` drives both the color and (unless `label` is given) the text. */
+export default function StatusPill({ status, label, variant }) {
   const { t } = useI18n();
-  return <span className={[styles.pill, styles[status] || ""].join(" ")}>{t(LABEL_KEY[status] || status)}</span>;
+  const colorKey = variant || status;
+  return <span className={[styles.pill, VARIANT_CLASS[colorKey] || ""].join(" ")}>{label || t(LABEL_KEY[status] || status)}</span>;
 }

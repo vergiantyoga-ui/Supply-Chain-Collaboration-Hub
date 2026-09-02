@@ -10,7 +10,7 @@ export function ToastProvider({ children }) {
   const showToast = useCallback((message, variant = "default") => {
     setToast({ message, variant, key: Date.now() });
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setToast(null), 3800);
+    timerRef.current = setTimeout(() => setToast(null), 7000);
   }, []);
 
   const value = useMemo(() => ({ showToast }), [showToast]);

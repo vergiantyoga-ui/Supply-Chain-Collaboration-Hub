@@ -67,8 +67,15 @@ export default function SubmissionDetail({ submission, lookups, onDecided }) {
   async function handleApprove() {
     setBusy(true);
     try {
-      await approveSubmission(submission.id, user?.email);
-      showToast(t("toastApproved"), "success");
+      const result = await approveSubmission(submission.id, user?.email);
+      if (result?.accountEmail && result?.generatedPassword) {
+        const message = t("toastApprovedWithCredentials")
+          .replace("{email}", result.accountEmail)
+          .replace("{password}", result.generatedPassword);
+        showToast(message, "success");
+      } else {
+        showToast(t("toastApproved"), "success");
+      }
       onDecided();
     } catch (err) {
       showToast(err.message, "error");

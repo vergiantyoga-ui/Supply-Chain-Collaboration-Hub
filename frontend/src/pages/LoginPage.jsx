@@ -52,7 +52,7 @@ export default function LoginPage() {
   }
 
   function redirectByRole(role) {
-    navigate(role === "internal_staff" ? "/internal" : "/supplier/home", { replace: true });
+    navigate(role === "internal_staff" ? "/internal" : "/supplier/profile", { replace: true });
   }
 
   return (
