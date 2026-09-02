@@ -1,0 +1,96 @@
+.field {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-600);
+  margin-bottom: 6px;
+}
+
+.control {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  font-size: 14.5px;
+  color: var(--ink-900);
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.control:focus {
+  outline: none;
+  border-color: var(--amber-500);
+  box-shadow: 0 0 0 3px rgba(217, 142, 43, 0.18);
+}
+
+.control:disabled {
+  background-color: #f2f1ec;
+  color: var(--ink-500);
+  cursor: not-allowed;
+}
+
+.control.invalid {
+  border-color: var(--danger);
+}
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1L6 6L11 1' stroke='%235B6270' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 34px;
+  cursor: pointer;
+}
+
+.textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--ink-500);
+  margin-top: 5px;
+}
+
+.error {
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 5px;
+}
+
+.pwWrap {
+  position: relative;
+}
+
+.pwWrap .control {
+  padding-right: 42px;
+}
+
+.pwToggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-500);
+  border-radius: 6px;
+}
+
+.pwToggle:hover {
+  background: #f1eee4;
+}

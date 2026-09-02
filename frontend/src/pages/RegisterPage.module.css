@@ -1,0 +1,55 @@
+.shell {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 90px 24px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--ink-600);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--ink-900);
+}
+
+.head h1 {
+  font-size: 29px;
+  margin: 26px 0 8px 0;
+}
+
+.head p {
+  color: var(--ink-500);
+  font-size: 14.5px;
+  max-width: 60ch;
+  line-height: 1.6;
+  margin: 0 0 34px 0;
+}
+
+.actionBar {
+  position: sticky;
+  bottom: 0;
+  background: rgba(245, 243, 238, 0.92);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid var(--line-soft);
+  margin: 36px -24px 0 -24px;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.spacer {
+  flex: 1;
+}

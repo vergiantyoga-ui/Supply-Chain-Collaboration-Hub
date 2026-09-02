@@ -1,0 +1,95 @@
+.topbar {
+  background: var(--navy-900);
+  color: #efeee7;
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 15.5px;
+}
+
+.glyph {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--amber-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy-900);
+  font-weight: 600;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.topbarRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.userName {
+  color: #c6ccda;
+}
+
+.logoutLink {
+  background: none;
+  border: none;
+  color: #c6ccda;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.logoutLink:hover {
+  color: #fff;
+}
+
+.head {
+  padding: 26px 32px 4px 32px;
+}
+
+.head h1 {
+  font-size: 25px;
+  margin: 0 0 6px 0;
+}
+
+.head p {
+  color: var(--ink-500);
+  font-size: 14px;
+  margin: 0;
+  max-width: 62ch;
+  line-height: 1.55;
+}
+
+.loading {
+  padding: 32px;
+  color: var(--ink-500);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 0;
+  max-width: 1180px;
+  margin: 22px auto 60px auto;
+  padding: 0 32px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

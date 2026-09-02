@@ -1,0 +1,84 @@
+.panel {
+  background: radial-gradient(circle at 18% 20%, rgba(217, 142, 43, 0.16), transparent 45%),
+    linear-gradient(155deg, var(--navy-900) 0%, var(--navy-700) 68%, var(--navy-500) 100%);
+  color: #f2efe6;
+  position: relative;
+  overflow: hidden;
+  padding: 56px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100%;
+}
+
+@media (max-width: 860px) {
+  .panel {
+    min-height: 280px;
+    padding: 40px 32px;
+  }
+}
+
+.routeSvg {
+  position: absolute;
+  right: -40px;
+  top: 38%;
+  opacity: 0.5;
+  width: 340px;
+  height: auto;
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+.glyph {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--amber-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy-900);
+  font-weight: 600;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.copy h1 {
+  font-size: clamp(26px, 3.2vw, 40px);
+  line-height: 1.2;
+  max-width: 14ch;
+  margin: 0 0 20px 0;
+}
+
+.copy p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #cbd2de;
+  max-width: 40ch;
+}
+
+.statRow {
+  display: flex;
+  gap: 36px;
+  flex-wrap: wrap;
+  margin-top: 34px;
+}
+
+.stat b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.stat span {
+  font-size: 12.5px;
+  color: #b9c1d1;
+}
