@@ -54,13 +54,18 @@ export async function getLookups() {
 // ------------------------------------------------------------------
 // Auth (mock-only for this build — see PRD 5.4 for production guidance)
 // ------------------------------------------------------------------
-export async function authenticate(email, _password) {
+export async function authenticate(email, password) {
   // NOTE: this build intentionally does not verify passwords against a real
-  // hash — see README "Authentication" section. It simulates a successful
-  // login and derives the role from the account domain, matching the
-  // behaviour of the interactive HTML mockup delivered earlier in this
-  // project. Replace with real credential verification (bcrypt compare +
-  // session/JWT issuance) before going to production.
+  // hash for most accounts — see README "Authentication" section. It
+  // simulates a successful login and derives the role from the account
+  // domain, matching the behaviour of the interactive HTML mockup delivered
+  // earlier in this project. Replace with real credential verification
+  // (bcrypt compare + session/JWT issuance) before going to production.
+  //
+  // Exception: accounts created by the supplier-approval flow (see
+  // approveSubmission below) DO have a real (plaintext, mock-only) password
+  // attached, and that password IS checked here — this lets the "approve →
+  // email credentials → supplier logs in" loop be demoed end-to-end.
   if (!email) return null;
 
   if (isDatabaseConfigured()) {
@@ -73,7 +78,10 @@ export async function authenticate(email, _password) {
   }
 
   const existing = mock.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-  if (existing) return existing;
+  if (existing) {
+    if (existing.password && existing.password !== password) return null;
+    return existing;
+  }
 
   // Fallback simulation for any email not in the seed list: role inferred
   // from the internal corporate domain, as documented in the PRD.
@@ -233,6 +241,11 @@ export async function approveSubmission(id, actorEmail) {
       "INSERT INTO approval_audit_log (submission_id, action, actor_email) VALUES ($1, 'approved', $2)",
       [id, actorEmail]
     );
+    // NOTE: account creation + welcome email on the real-Postgres path is
+    // intentionally not implemented in this build — wire it up alongside a
+    // real transactional email provider (see PRD 9.8) and a bcrypt-hashed
+    // password before going to production. The mock path below shows the
+    // full intended flow end-to-end.
     return rows[0];
   }
 
@@ -241,7 +254,51 @@ export async function approveSubmission(id, actorEmail) {
   record.status = "approved";
   record.decidedAt = now;
   mock.auditLog.unshift({ id: `log-${Date.now()}`, submissionId: id, action: "approved", actorEmail, reason: null, createdAt: now });
-  return { id, status: "approved", decidedAt: now };
+
+  // Create (or reuse) the supplier's account, using the CONTACT email from
+  // Tab 3 of the registration form — per requirement, credentials are sent
+  // to the contact person, not necessarily the general company email.
+  const accountEmail = record.contact.email;
+  let user = mock.users.find((u) => u.email.toLowerCase() === accountEmail.toLowerCase());
+  const generatedPassword = mock.genMockPassword();
+  if (!user) {
+    user = {
+      id: mock.genId("user"),
+      email: accountEmail,
+      role: "supplier",
+      fullName: record.contact.contactName,
+      password: generatedPassword,
+      submissionId: record.id,
+    };
+    mock.users.push(user);
+  } else {
+    user.password = generatedPassword;
+    user.submissionId = record.id;
+  }
+
+  if (!mock.supplierProfiles[record.id]) {
+    mock.supplierProfiles[record.id] = mock.createInitialSupplierProfile(record);
+  }
+
+  // Simulate the welcome-with-credentials email (PRD 9.8). No real email
+  // provider is wired up in this build — the message is stored in an
+  // in-memory outbox (viewable via GET /api/dev/email-outbox) and the
+  // generated password is also returned directly in this API response so
+  // the Internal Review UI can surface it to the reviewer for testing.
+  mock.emailOutbox.unshift({
+    id: mock.genId("email"),
+    to: accountEmail,
+    subject: "Akun Supplier Paragon Supply Collaboration Hub Anda telah aktif",
+    body:
+      `Selamat, pendaftaran ${record.vendorName} (${record.submissionCode}) telah disetujui.\n\n` +
+      `Anda dapat masuk ke Paragon Supply Collaboration Hub menggunakan:\n` +
+      `Email: ${accountEmail}\nPassword sementara: ${generatedPassword}\n\n` +
+      `Segera lengkapi profil perusahaan Anda (data pajak, dokumen legalitas, izin & sertifikat, ` +
+      `informasi pembayaran, dan kontak tambahan) setelah masuk.`,
+    sentAt: now,
+  });
+
+  return { id, status: "approved", decidedAt: now, accountEmail, generatedPassword };
 }
 
 export async function rejectSubmission(id, reason, actorEmail) {
@@ -269,6 +326,174 @@ export async function rejectSubmission(id, reason, actorEmail) {
   record.rejectReason = reason;
   mock.auditLog.unshift({ id: `log-${Date.now()}`, submissionId: id, action: "rejected", actorEmail, reason, createdAt: now });
   return { id, status: "rejected", decidedAt: now, rejectReason: reason };
+}
+
+// ------------------------------------------------------------------
+// Supplier self-service profile (Tax Detail, Documents, Licenses,
+// Bank Accounts, Contacts) — mock-data only in this iteration. Wire up
+// real Postgres tables (see db/schema.sql) following the same dual-mode
+// pattern used above for supplier_submissions when ready for production.
+// ------------------------------------------------------------------
+const MAX_PROFILE_CONTACTS = 10;
+
+function findProfileByEmail(email) {
+  return Object.values(mock.supplierProfiles).find((p) => p.userEmail.toLowerCase() === (email || "").toLowerCase());
+}
+
+export async function getSupplierProfile(email) {
+  return findProfileByEmail(email) || null;
+}
+
+export async function updateTaxDetail(email, taxDetail) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return null;
+  profile.taxDetail = { ...profile.taxDetail, ...taxDetail };
+  return profile.taxDetail;
+}
+
+export async function addProfileDocument(email, doc) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return null;
+  const entry = { id: mock.genId("doc"), uploadedAt: new Date().toISOString(), ...doc };
+  profile.documents.push(entry);
+  return entry;
+}
+
+export async function removeProfileDocument(email, docId) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return false;
+  const before = profile.documents.length;
+  profile.documents = profile.documents.filter((d) => d.id !== docId);
+  return profile.documents.length < before;
+}
+
+export async function addProfileLicense(email, license) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return null;
+  const entry = { id: mock.genId("lic"), ...license };
+  profile.licenses.push(entry);
+  return entry;
+}
+
+export async function removeProfileLicense(email, licenseId) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return false;
+  const before = profile.licenses.length;
+  profile.licenses = profile.licenses.filter((l) => l.id !== licenseId);
+  return profile.licenses.length < before;
+}
+
+export async function addBankAccount(email, account) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return null;
+  const entry = { id: mock.genId("bank"), ...account };
+  profile.bankAccounts.push(entry);
+  return entry;
+}
+
+export async function updateBankAccount(email, accountId, patch) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return null;
+  const account = profile.bankAccounts.find((a) => a.id === accountId);
+  if (!account) return null;
+  Object.assign(account, patch);
+  return account;
+}
+
+export async function removeBankAccount(email, accountId) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return false;
+  const before = profile.bankAccounts.length;
+  profile.bankAccounts = profile.bankAccounts.filter((a) => a.id !== accountId);
+  return profile.bankAccounts.length < before;
+}
+
+export async function addProfileContact(email, contact) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return { error: "not_found" };
+  if (profile.contacts.length >= MAX_PROFILE_CONTACTS) return { error: "max_reached" };
+  const entry = { id: mock.genId("contact"), ...contact };
+  profile.contacts.push(entry);
+  return { data: entry };
+}
+
+export async function updateProfileContact(email, contactId, patch) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return null;
+  const contact = profile.contacts.find((c) => c.id === contactId);
+  if (!contact) return null;
+  Object.assign(contact, patch);
+  return contact;
+}
+
+export async function removeProfileContact(email, contactId) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return false;
+  const before = profile.contacts.length;
+  profile.contacts = profile.contacts.filter((c) => c.id !== contactId);
+  return profile.contacts.length < before;
+}
+
+// ------------------------------------------------------------------
+// RFx (issued by Paragon procurement to specific suppliers) — mock-data
+// only in this iteration.
+// ------------------------------------------------------------------
+export async function listRfxForSupplier(email) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return [];
+  return mock.rfxList
+    .filter((r) => r.targetSubmissionIds.includes(profile.submissionId))
+    .map(({ targetSubmissionIds, ...rest }) => rest)
+    .sort((a, b) => new Date(b.issuedAt) - new Date(a.issuedAt));
+}
+
+export async function getRfxById(email, rfxId) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return null;
+  const rfx = mock.rfxList.find((r) => r.id === rfxId && r.targetSubmissionIds.includes(profile.submissionId));
+  if (!rfx) return null;
+  const { targetSubmissionIds, ...rest } = rfx;
+  return rest;
+}
+
+// ------------------------------------------------------------------
+// Quotations submitted by suppliers against an RFx — mock-data only.
+// ------------------------------------------------------------------
+export async function listQuotationsForSupplier(email) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return [];
+  return mock.quotations
+    .filter((q) => q.submissionId === profile.submissionId)
+    .sort((a, b) => new Date(b.submittedAt || b.createdAt || 0) - new Date(a.submittedAt || a.createdAt || 0));
+}
+
+export async function createQuotation(email, payload) {
+  const profile = findProfileByEmail(email);
+  if (!profile) return { error: "not_found" };
+  const rfx = mock.rfxList.find((r) => r.id === payload.rfxId && r.targetSubmissionIds.includes(profile.submissionId));
+  if (!rfx) return { error: "invalid_rfx" };
+  if (rfx.status !== "open") return { error: "rfx_closed" };
+
+  const quotation = {
+    id: mock.genId("quo"),
+    rfxId: payload.rfxId,
+    submissionId: profile.submissionId,
+    currency: payload.currency,
+    validUntil: payload.validUntil,
+    status: "submitted",
+    submittedAt: new Date().toISOString(),
+    notes: payload.notes || "",
+    items: (payload.items || []).map((it) => ({ id: mock.genId("item"), ...it })),
+  };
+  mock.quotations.unshift(quotation);
+  return { data: quotation };
+}
+
+// ------------------------------------------------------------------
+// Dev-only: simulated outbound email log (see PRD 9.8 for real requirements)
+// ------------------------------------------------------------------
+export async function getEmailOutbox() {
+  return mock.emailOutbox;
 }
 
 // ------------------------------------------------------------------

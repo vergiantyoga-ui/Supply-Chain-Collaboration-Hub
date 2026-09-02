@@ -94,6 +94,120 @@ export const geo = {
 export const users = [
   { id: "11111111-1111-1111-1111-111111111111", email: "reviewer@paragon-corp.com", role: "internal_staff", fullName: "Nadia Putri" },
   { id: "22222222-2222-2222-2222-222222222222", email: "procurement@shn.co.id", role: "supplier", fullName: "Dewi Anggraini" },
+  // Pre-seeded supplier account for the ALREADY-APPROVED submission (SUP-2026-0082), so the
+  // reviewer flow can be demoed end-to-end without needing to click Approve first.
+  // Password is intentionally plain/known for demo purposes: "Paragon123!"
+  {
+    id: "33333333-3333-3333-3333-333333333333",
+    email: "bayu.p@mitrakantor.co.id",
+    role: "supplier",
+    fullName: "Bayu Prakoso",
+    password: "Paragon123!",
+    submissionId: "a1111111-0000-0000-0000-000000000082",
+  },
+];
+
+// Simulated outbound emails. In production this would be replaced by a real
+// transactional email provider call (SES, Postmark, SendGrid, etc.) — see
+// PRD section 9.8. Exposed read-only via GET /api/dev/email-outbox purely so
+// this mock build is testable without a real mailbox.
+export const emailOutbox = [];
+
+export function genId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
+
+export function genMockPassword() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  let out = "";
+  for (let i = 0; i < 10; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+
+/**
+ * Supplier profile data (PRD follow-up: post-login supplier self-service —
+ * Tax Detail, Document Upload, License & Certificate, Purchase & Invoicing,
+ * Contact Detail). Keyed by submissionId, which is the durable link between
+ * a supplier's account and their original registration data.
+ */
+export const supplierProfiles = {
+  "a1111111-0000-0000-0000-000000000082": {
+    submissionId: "a1111111-0000-0000-0000-000000000082",
+    userEmail: "bayu.p@mitrakantor.co.id",
+    taxDetail: { nik: "3201234567890001", npwp: "01.234.567.8-901.000", ktp: "3201234567890001", siup: "503/SIUP-K/2021/DPMPTSP" },
+    documents: [
+      { id: "doc-1", type: "akta_pendirian", fileName: "akta-pendirian-mitra-kantor.pdf", uploadedAt: "2026-08-22T09:00:00+07:00" },
+      { id: "doc-2", type: "sk_pendirian", fileName: "sk-kemenkumham-mitra-kantor.pdf", uploadedAt: "2026-08-22T09:05:00+07:00" },
+    ],
+    licenses: [
+      { id: "lic-1", type: "halal", certificateNumber: "ID00123456789012", issueDate: "2025-01-10", expiryDate: "2027-01-10", fileName: "sertifikat-halal.pdf" },
+    ],
+    bankAccounts: [
+      { id: "bank-1", bankName: "Bank Central Asia (BCA)", accountNumber: "1234567890", accountHolder: "CV Mitra Kantor Sejahtera", currency: "IDR", termsOfPayment: "net_30" },
+    ],
+    contacts: [
+      { id: "contact-1", contactName: "Bayu Prakoso", title: "mr", jobPosition: "other", email: "bayu.p@mitrakantor.co.id", phone: "(021) 555-0193", mobilePhone: "+62 812-9988-7766", notes: "" },
+    ],
+  },
+};
+
+export function createInitialSupplierProfile(submission) {
+  return {
+    submissionId: submission.id,
+    userEmail: submission.contact.email,
+    taxDetail: { nik: "", npwp: "", ktp: "", siup: "" },
+    documents: [],
+    licenses: [],
+    bankAccounts: [],
+    contacts: [{ id: genId("contact"), ...submission.contact }],
+  };
+}
+
+/**
+ * RFx (RFI/RFP/RFQ) issued by Paragon procurement to specific suppliers.
+ * `targetSubmissionIds` links an RFx to the supplier(s) invited to respond.
+ */
+export const rfxList = [
+  {
+    id: "rfx-2026-014",
+    code: "RFQ-2026-014",
+    title: "Pengadaan Office Supplies Kuartal Q4 2026",
+    type: "rfq",
+    category: "indirect_material",
+    issuedAt: "2026-08-25T09:00:00+07:00",
+    deadline: "2026-09-15T17:00:00+07:00",
+    status: "open",
+    description: "Paragon Corp Indonesia mengundang Anda untuk mengajukan penawaran harga kebutuhan office supplies periode Oktober\u2013Desember 2026.",
+    targetSubmissionIds: ["a1111111-0000-0000-0000-000000000082"],
+  },
+  {
+    id: "rfx-2026-009",
+    code: "RFI-2026-009",
+    title: "Survei Kapasitas Produksi Jasa Kebersihan 2027",
+    type: "rfi",
+    category: "indirect_material",
+    issuedAt: "2026-08-05T09:00:00+07:00",
+    deadline: "2026-08-20T17:00:00+07:00",
+    status: "closed",
+    description: "Pengumpulan informasi kapasitas dan cakupan layanan kebersihan untuk perencanaan anggaran 2027.",
+    targetSubmissionIds: ["a1111111-0000-0000-0000-000000000082"],
+  },
+];
+
+export const quotations = [
+  {
+    id: "quo-2026-005",
+    rfxId: "rfx-2026-009",
+    submissionId: "a1111111-0000-0000-0000-000000000082",
+    currency: "IDR",
+    validUntil: "2026-09-01",
+    status: "submitted",
+    submittedAt: "2026-08-18T14:00:00+07:00",
+    notes: "Termasuk jasa kebersihan area kantor dan gudang, 5 hari kerja per minggu.",
+    items: [
+      { id: "item-1", itemName: "Jasa kebersihan kantor (per bulan)", quantity: 1, unitPrice: 8500000, uom: "bulan" },
+    ],
+  },
 ];
 
 // submissions is mutable (push / status updates) — acts as the mock "table".
