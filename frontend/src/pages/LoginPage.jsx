@@ -4,6 +4,7 @@ import { useI18n } from "../i18n/I18nContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import BrandPanel from "../components/layout/BrandPanel.jsx";
+import LanguageSwitcher from "../components/ui/LanguageSwitcher.jsx";
 import TextField from "../components/ui/TextField.jsx";
 import Button from "../components/ui/Button.jsx";
 import styles from "./LoginPage.module.css";
@@ -57,6 +58,7 @@ export default function LoginPage() {
 
   return (
     <div className={styles.grid}>
+      <LanguageSwitcher />
       <BrandPanel />
 
       <div className={styles.formPanel}>

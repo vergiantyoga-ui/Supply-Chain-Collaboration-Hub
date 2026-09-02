@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext.jsx";
 import { requestPasswordReset } from "../api/auth.js";
+import LanguageSwitcher from "../components/ui/LanguageSwitcher.jsx";
 import TextField from "../components/ui/TextField.jsx";
 import Button from "../components/ui/Button.jsx";
 import styles from "./ForgotPasswordPage.module.css";
@@ -35,6 +36,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className={styles.centerScreen}>
+      <LanguageSwitcher />
       <div className={styles.card}>
         <h2>{t("forgotTitle")}</h2>
         {sent ? (

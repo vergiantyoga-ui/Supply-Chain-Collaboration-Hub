@@ -1,6 +1,7 @@
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext.jsx";
 import Button from "../components/ui/Button.jsx";
+import LanguageSwitcher from "../components/ui/LanguageSwitcher.jsx";
 import styles from "./ForgotPasswordPage.module.css";
 
 export default function RegisterSuccessPage() {
@@ -14,6 +15,7 @@ export default function RegisterSuccessPage() {
 
   return (
     <div className={styles.centerScreen}>
+      <LanguageSwitcher />
       <div className={styles.card}>
         <h2>{t("registerSuccessTitle")}</h2>
         <p className={styles.desc}>{t("registerSuccessDesc")}</p>

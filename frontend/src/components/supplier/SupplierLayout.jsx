@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useI18n } from "../../i18n/I18nContext.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
+import LanguageSwitcher from "../ui/LanguageSwitcher.jsx";
 import styles from "./SupplierLayout.module.css";
 
 export default function SupplierLayout() {
@@ -21,6 +22,7 @@ export default function SupplierLayout() {
         </div>
         <div className={styles.topbarRight}>
           {user?.email && <span className={styles.userName}>{user.email}</span>}
+          <LanguageSwitcher variant="inline" />
           <button type="button" className={styles.logoutLink} onClick={handleLogout}>
             {t("logoutButton")}
           </button>

@@ -4,11 +4,20 @@ import styles from "./LanguageSwitcher.module.css";
 
 const DISPLAY_LABEL = { id: "ID", en: "EN", zh: "中文" };
 
-export default function LanguageSwitcher() {
+/**
+ * `variant="floating"` (default): fixed pill anchored to the top-right of
+ * the viewport. Used on pages with no top bar of their own (Login, Forgot
+ * Password, Register).
+ *
+ * `variant="inline"`: sits naturally inside a flex row instead of floating
+ * — used inside SupplierLayout / InternalReviewPage's top bar, next to the
+ * logout button, so the two controls never overlap.
+ */
+export default function LanguageSwitcher({ variant = "floating" }) {
   const { language, setLanguage } = useI18n();
 
   return (
-    <div className={styles.switcher}>
+    <div className={[styles.switcher, variant === "inline" ? styles.inline : styles.floating].join(" ")}>
       {supportedLanguages.map((lang) => (
         <button
           key={lang}

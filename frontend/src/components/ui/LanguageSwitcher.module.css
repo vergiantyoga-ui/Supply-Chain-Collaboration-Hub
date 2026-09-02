@@ -1,36 +1,63 @@
 .switcher {
+  display: flex;
+  gap: 2px;
+  border-radius: 22px;
+  padding: 4px;
+}
+
+.floating {
   position: fixed;
   top: 18px;
   right: 18px;
   z-index: 100;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid var(--line);
-  border-radius: 22px;
-  padding: 4px;
-  display: flex;
-  gap: 2px;
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(4px);
+}
+
+.inline {
+  position: static;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
 }
 
 .btn {
   border: none;
   background: transparent;
-  padding: 7px 13px;
+  padding: 6px 12px;
   border-radius: 18px;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--ink-500);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.btn.active {
+.floating .btn {
+  color: var(--ink-500);
+}
+
+.floating .btn.active {
   background: var(--navy-900);
   color: #fff;
 }
 
-.btn:not(.active):hover {
+.floating .btn:not(.active):hover {
   color: var(--ink-900);
   background: #f1eee4;
+}
+
+.inline .btn {
+  color: #c6ccda;
+}
+
+.inline .btn.active {
+  background: var(--amber-500);
+  color: var(--navy-900);
+}
+
+.inline .btn:not(.active):hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
 }

@@ -8,6 +8,7 @@ import { ApiError } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import Tabs from "../components/ui/Tabs.jsx";
 import Button from "../components/ui/Button.jsx";
+import LanguageSwitcher from "../components/ui/LanguageSwitcher.jsx";
 import GeneralTab from "../components/register/GeneralTab.jsx";
 import AddressTab from "../components/register/AddressTab.jsx";
 import ContactTab from "../components/register/ContactTab.jsx";
@@ -118,6 +119,7 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.shell}>
+      <LanguageSwitcher />
       <div className={styles.top}>
         <Link to="/login" className={styles.backLink}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">

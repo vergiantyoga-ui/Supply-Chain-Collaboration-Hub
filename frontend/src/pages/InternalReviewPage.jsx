@@ -6,6 +6,7 @@ import { useLookups } from "../utils/useLookups.js";
 import { listSubmissions, getSubmission } from "../api/suppliers.js";
 import QueueList from "../components/internal/QueueList.jsx";
 import SubmissionDetail from "../components/internal/SubmissionDetail.jsx";
+import LanguageSwitcher from "../components/ui/LanguageSwitcher.jsx";
 import styles from "./InternalReviewPage.module.css";
 
 export default function InternalReviewPage() {
@@ -73,6 +74,7 @@ export default function InternalReviewPage() {
         </div>
         <div className={styles.topbarRight}>
           {user?.fullName && <span className={styles.userName}>{user.fullName}</span>}
+          <LanguageSwitcher variant="inline" />
           <button type="button" className={styles.logoutLink} onClick={handleLogout}>
             {t("logoutButton")}
           </button>

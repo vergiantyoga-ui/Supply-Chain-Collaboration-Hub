@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import LanguageSwitcher from "./components/ui/LanguageSwitcher.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 
@@ -23,9 +22,7 @@ function HomeRedirect() {
 
 export default function App() {
   return (
-    <>
-      <LanguageSwitcher />
-      <Routes>
+    <Routes>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -57,6 +54,5 @@ export default function App() {
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </>
   );
 }
